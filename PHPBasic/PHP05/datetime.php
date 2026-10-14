@@ -16,6 +16,6 @@ printf("相隔 %d 天 %d 小时 %d 分钟\n", $interval->days, $interval->h, $in
 try {
     $date = new DateTimeImmutable('2026-12-31', new DateTimeZone('Asia/Tokyo'));
     echo $date->modify('+1 day')->format('Y-m-d'), PHP_EOL;
-} catch (DateMalformedStringException $exception) {
+} catch (Exception $exception) {
     echo '日期格式无效。', PHP_EOL;
 }
