@@ -1,0 +1,14 @@
+# Composer dependencies and PHPUnit cache
+/PHPBasic/PHP07/vendor/
+/PHPBasic/PHP07/.phpunit.cache/
+
+# Generated learning data; do not commit local runtime data
+/PHPBasic/PHP05/data.txt
+/PHPBasic/PHP06/learning.sqlite
+/PHPBasic/PHP06/learning.sqlite-shm
+/PHPBasic/PHP06/learning.sqlite-wal
+
+# Common local environment files
+.env
+.env.*
+!.env.example
