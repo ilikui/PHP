@@ -39,7 +39,7 @@
     const text = source.value || '';
     preview.replaceChildren();
     if (!text.trim()) {
-      if (empty) empty.hidden = false;
+      if (empty) { empty.hidden = false; preview.append(empty); }
       return;
     }
     if (empty) empty.hidden = true;
