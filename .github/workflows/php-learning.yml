@@ -51,6 +51,18 @@ jobs:
         working-directory: PHPBasic/PHP07
         run: composer install --no-interaction --prefer-dist
 
-      - name: Run unit tests
+      - name: Run OOP unit tests
         working-directory: PHPBasic/PHP07
+        run: composer test
+
+      - name: Install PHP11 dependencies
+        working-directory: PHPBasic/PHP11-Composer
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Lint PHP11 components
+        working-directory: PHPBasic/PHP11-Composer
+        run: composer lint
+
+      - name: Test PHP11 components
+        working-directory: PHPBasic/PHP11-Composer
         run: composer test
