@@ -4,7 +4,6 @@ declare(strict_types=1);
 require __DIR__ . '/src/ArticleRepository.php';
 
 use Learning\Cms\ArticleRepository;
-use PDO;
 
 function check(bool $condition, string $message): void
 {
@@ -12,7 +11,7 @@ function check(bool $condition, string $message): void
     echo "PASS: {$message}\n";
 }
 
-$pdo = new PDO('sqlite::memory:');
+$pdo = new \PDO('sqlite::memory:');
 $repo = new ArticleRepository($pdo);
 $id = $repo->save(null, '测试文章', "第一行\n第二行", 'draft');
 check($repo->find($id)['status'] === 'draft', 'new article defaults to draft');
