@@ -60,9 +60,21 @@ final class ArticleRepository
     }
 
     /** @return list<array<string, mixed>> */
-    public function all(): array
+    public function all(string $query = '', string $status = ''): array
     {
-        return $this->pdo->query('SELECT id, title, body, status, created_at, updated_at FROM articles ORDER BY updated_at DESC, id DESC')->fetchAll();
+        $query = trim($query);
+        if (!in_array($status, ['', 'draft', 'published'], true)) {
+            throw new \\InvalidArgumentException('文章状态筛选条件无效。');
+        }
+        $sql = 'SELECT id, title, body, status, created_at, updated_at FROM articles WHERE 1 = 1';
+        if ($status !== '') $sql .= ' AND status = :status';
+        if ($query !== '') $sql .= ' AND (instr(lower(title), lower(:query)) > 0 OR instr(lower(body), lower(:query)) > 0)';
+        $sql .= ' ORDER BY updated_at DESC, id DESC';
+        $stmt = $this->pdo->prepare($sql);
+        if ($status !== '') $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+        if ($query !== '') $stmt->bindValue(':query', $query, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
     /** @return array<string, mixed>|null */
