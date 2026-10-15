@@ -6,10 +6,10 @@
 
 | 章节 | 已有文件 | 学习主题 |
 | --- | --- | --- |
-| [PHP01](./PHP01/) | `PhpInformation.php`、`phpinfo.php`、`print.php` | PHP 环境、运行信息、输出 |
-| [PHP02](./PHP02/) | `Varibales.php`、`predefined.php` | 变量与预定义变量 |
-| [PHP03](./PHP03/) | `feedback.html`、`handle_form.php` | 表单处理、输入校验与安全输出 |
-| [PHP04](./PHP04/) | `posting.html`、`handle_post.php` | POST 请求与内容预览 |
+| [PHP01](./PHP01/) | PhpInformation.php、phpinfo.php、print.php | PHP 环境、运行信息、输出 |
+| [PHP02](./PHP02/) | Varibales.php、predefined.php | 变量与预定义变量 |
+| [PHP03](./PHP03/) | feedback.html、handle_form.php | 表单处理、输入校验与安全输出 |
+| [PHP04](./PHP04/) | posting.html、handle_post.php | POST 请求与内容预览 |
 
 ## 学习指南
 
@@ -25,19 +25,18 @@
 - [基础语法示例](./示例/)
 - [PHP05｜文件、JSON、正则与日期时间](./PHP05/)
 - [PHP06｜PDO 数据库实战](./PHP06/)
+- [PHP06 实战｜图书管理 CRUD 应用](./PHP06/book_manager/)
 - [PHP07｜面向对象、Composer 与测试](./PHP07/)
 
 ## 运行环境
 
 建议 PHP 8.2+。检查版本和语法：
 
-```bash
-php -v
-php -l PHPBasic/示例/01-types.php
-php PHPBasic/示例/01-types.php
-```
+    php -v
+    php -l PHPBasic/示例/01-types.php
+    php PHPBasic/示例/01-types.php
 
-网页示例可在对应目录运行 `php -S 127.0.0.1:8000`，然后访问本地地址。内置服务器仅用于开发，不用于生产部署。
+网页示例可在对应目录运行 php -S 127.0.0.1:8000，然后访问本地地址。内置服务器仅用于开发，不用于生产部署。
 
 ## 学习闭环
 
@@ -48,7 +47,7 @@ php PHPBasic/示例/01-types.php
 
 ## 安全基线
 
-- `phpinfo()` 仅在本地临时调试，公开服务器上不要保留。
+- phpinfo() 仅在本地临时调试，公开服务器上不要保留。
 - 用户输入必须在服务端校验；输出到 HTML 时按上下文编码。
 - SQL 使用预处理语句，不拼接用户输入。
 - 数据库凭据不要提交到仓库；生产环境关闭错误详情显示。
