@@ -30,6 +30,7 @@
 - [PHP08｜MVC 与 Web 应用架构](./PHP08-MVC/)
 - [PHP09｜登录认证与权限控制](./PHP09-Auth/)
 - [PHP10｜REST API 工程实战](./PHP10-REST-API/)
+- [PHP11｜Composer 工程化与可复用组件](./PHP11-Composer/)
 
 ## 运行环境
 
