@@ -109,13 +109,18 @@ if ($path === '/login') {
 }
 if (str_starts_with($path, '/admin') && !isAdmin()) go('/login');
 if ($path === '/admin') {
-    $rows = $articles->all();
+    $query = mb_substr(trim((string) ($_GET['q'] ?? '')), 0, 100);
+    $status = (string) ($_GET['status'] ?? '');
+    if (!in_array($status, ['', 'draft', 'published'], true)) $status = '';
+    $rows = $articles->all($query, $status);
     $items = '';
     foreach ($rows as $row) {
         $items .= '<article><h2><a href="/admin/edit?id=' . (int) $row['id'] . '">' . e((string) $row['title']) . '</a></h2><p><span class="status">' . ($row['status'] === 'published' ? '已发布' : '草稿') . '</span> <small>更新于 ' . e((string) $row['updated_at']) . '</small></p><div class="actions"><a class="button" href="/admin/edit?id=' . (int) $row['id'] . '">编辑</a><form class="inline" method="post" action="/admin/delete" onsubmit="return confirm(\'确定删除这篇文章吗？\')"><input type="hidden" name="_csrf" value="' . e(csrf()) . '"><input type="hidden" name="id" value="' . (int) $row['id'] . '"><button class="danger" type="submit">删除</button></form></div></article>';
     }
-    page('文章管理', '<h1>文章管理</h1><p class="muted">已登录：' . e((string) ($_SESSION['username'] ?? 'admin')) . '</p><p><a class="button" href="/admin/new">＋ 新建文章</a></p>' . ($items !== '' ? $items : '<section class="panel empty">还没有文章，创建第一篇吧。</section>'));
+    $filter = '<section class="panel"><form method="get" action="/admin"><label for="q">搜索文章</label><input id="q" name="q" type="text" maxlength="100" value="' . e($query) . '" placeholder="标题或正文关键词"><label for="status">发布状态</label><select id="status" name="status"><option value=""' . ($status === '' ? ' selected' : '') . '>全部状态</option><option value="draft"' . ($status === 'draft' ? ' selected' : '') . '>草稿</option><option value="published"' . ($status === 'published' ? ' selected' : '') . '>已发布</option></select><div class="actions"><button type="submit">筛选</button><a href="/admin">重置</a></div></form><p class="muted">当前找到 ' . count($rows) . ' 篇文章</p></section>';
+    page('文章管理', '<h1>文章管理</h1><p class="muted">已登录：' . e((string) ($_SESSION['username'] ?? 'admin')) . '</p><p><a class="button" href="/admin/new">＋ 新建文章</a></p>' . $filter . ($items !== '' ? $items : '<section class="panel empty">没有匹配文章。</section>'));
 }
+
 if ($path === '/admin/new' || $path === '/admin/edit') {
     $id = $path === '/admin/edit' ? filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : null;
     $row = null;
