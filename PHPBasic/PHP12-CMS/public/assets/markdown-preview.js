@@ -6,7 +6,8 @@
   if (!source || !preview) return;
 
   function appendInline(parent, value) {
-    const pattern = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|[[^]]+]([^)]+))/g;
+    const tick = String.fromCharCode(96);
+    const pattern = new RegExp('(\\*\\*[^*]+\\*\\*|\\*[^*]+\\*|' + tick + '[^' + tick + ']+' + tick + '|\\[[^\\]]+\\]\\([^)]+\\))', 'g');
     let last = 0;
     for (const match of value.matchAll(pattern)) {
       if (match.index > last) parent.append(document.createTextNode(value.slice(last, match.index)));
