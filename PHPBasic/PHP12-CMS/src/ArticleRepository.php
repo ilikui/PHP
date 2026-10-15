@@ -64,7 +64,7 @@ final class ArticleRepository
     {
         $query = trim($query);
         if (!in_array($status, ['', 'draft', 'published'], true)) {
-            throw new \\InvalidArgumentException('文章状态筛选条件无效。');
+            throw new \InvalidArgumentException('文章状态筛选条件无效。');
         }
         $sql = 'SELECT id, title, body, status, created_at, updated_at FROM articles WHERE 1 = 1';
         if ($status !== '') $sql .= ' AND status = :status';
