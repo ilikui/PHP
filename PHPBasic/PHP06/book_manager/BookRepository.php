@@ -29,9 +29,9 @@ final class BookRepository
         $params = [];
 
         if ($keyword !== '') {
-            $where = " WHERE title LIKE :keyword ESCAPE '\\' OR author LIKE :keyword ESCAPE '\\' OR isbn LIKE :keyword ESCAPE '\\'";
-            $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $keyword);
-            $params['keyword'] = '%' . $escaped . '%';
+            // LIKE 通配符由用户显式输入时按通配符处理；查询值仍通过参数绑定。
+            $where = ' WHERE title LIKE :keyword OR author LIKE :keyword OR isbn LIKE :keyword';
+            $params['keyword'] = '%' . $keyword . '%';
         }
 
         $count = $this->pdo->prepare('SELECT COUNT(*) FROM books' . $where);
