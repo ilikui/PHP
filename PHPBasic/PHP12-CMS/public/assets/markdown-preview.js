@@ -20,7 +20,7 @@
       } else if (token.charAt(0) === String.fromCharCode(96)) {
         node = document.createElement('code'); node.textContent = token.slice(1, -1);
       } else {
-        const link = token.match(/^[([^]]+)](([^)]+))$/);
+        const link = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
         const href = link ? link[2] : '';
         if (link && (/^https?:///i.test(href) || /^mailto:/i.test(href) || (href.startsWith('/') && !href.startsWith('//')))) {
           node = document.createElement('a'); node.textContent = link[1]; node.setAttribute('href', href);
