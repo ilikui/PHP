@@ -47,6 +47,9 @@ jobs:
       - name: Test REST API book store
         run: php PHPBasic/PHP10-REST-API/tests.php
 
+      - name: Test CMS article repository
+        run: php PHPBasic/PHP12-CMS/tests.php
+
       - name: Install OOP project dependencies
         working-directory: PHPBasic/PHP07
         run: composer install --no-interaction --prefer-dist
