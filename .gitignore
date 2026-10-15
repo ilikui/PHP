@@ -21,6 +21,9 @@
 /PHPBasic/PHP10-REST-API/var/*.sqlite
 /PHPBasic/PHP10-REST-API/var/*.sqlite-shm
 /PHPBasic/PHP10-REST-API/var/*.sqlite-wal
+/PHPBasic/PHP12-CMS/var/*.sqlite
+/PHPBasic/PHP12-CMS/var/*.sqlite-shm
+/PHPBasic/PHP12-CMS/var/*.sqlite-wal
 
 # Common local environment files
 .env
