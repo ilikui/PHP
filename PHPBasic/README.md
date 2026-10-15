@@ -29,6 +29,7 @@
 - [PHP07｜面向对象、Composer 与测试](./PHP07/)
 - [PHP08｜MVC 与 Web 应用架构](./PHP08-MVC/)
 - [PHP09｜登录认证与权限控制](./PHP09-Auth/)
+- [PHP10｜REST API 工程实战](./PHP10-REST-API/)
 
 ## 运行环境
 
