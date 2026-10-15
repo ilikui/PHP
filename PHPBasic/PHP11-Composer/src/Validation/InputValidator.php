@@ -11,6 +11,7 @@ final class InputValidator
         $errors = [];
         foreach ($rules as $field => $fieldRules) {
             $value = $input[$field] ?? null;
+            $stringMode = in_array('string', $fieldRules, true) && !in_array('integer', $fieldRules, true);
             foreach ($fieldRules as $rule) {
                 [$name, $argument] = array_pad(explode(':', $rule, 2), 2, null);
                 $message = match ($name) {
@@ -18,8 +19,8 @@ final class InputValidator
                     'string' => ($value !== null && !is_string($value)) ? 'must be a string' : null,
                     'integer' => ($value !== null && filter_var($value, FILTER_VALIDATE_INT) === false) ? 'must be an integer' : null,
                     'email' => ($value !== null && filter_var($value, FILTER_VALIDATE_EMAIL) === false) ? 'must be a valid email' : null,
-                    'max' => $this->tooLarge($value, $argument) ? 'exceeds maximum length/value' : null,
-                    'min' => $this->tooSmall($value, $argument) ? 'is below minimum length/value' : null,
+                    'max' => $this->exceedsMaximum($value, $argument, $stringMode) ? ($stringMode ? 'is too long' : 'exceeds maximum value') : null,
+                    'min' => $this->belowMinimum($value, $argument, $stringMode) ? ($stringMode ? 'is too short' : 'is below minimum value') : null,
                     default => throw new \InvalidArgumentException('Unknown validation rule: ' . $name),
                 };
                 if ($message !== null) $errors[$field][] = $message;
@@ -28,17 +29,17 @@ final class InputValidator
         return $errors;
     }
 
-    private function tooLarge(mixed $value, ?string $limit): bool
+    private function exceedsMaximum(mixed $value, ?string $limit, bool $stringMode): bool
     {
         if ($value === null || $limit === null || !is_numeric($limit)) return false;
-        if (is_string($value) && !is_numeric($value)) return mb_strlen($value) > (int) $limit;
+        if ($stringMode) return is_string($value) && mb_strlen($value) > (int) $limit;
         return is_numeric($value) && (float) $value > (float) $limit;
     }
 
-    private function tooSmall(mixed $value, ?string $limit): bool
+    private function belowMinimum(mixed $value, ?string $limit, bool $stringMode): bool
     {
         if ($value === null || $limit === null || !is_numeric($limit)) return false;
-        if (is_string($value) && !is_numeric($value)) return mb_strlen($value) < (int) $limit;
+        if ($stringMode) return is_string($value) && mb_strlen($value) < (int) $limit;
         return is_numeric($value) && (float) $value < (float) $limit;
     }
 }
