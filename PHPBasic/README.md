@@ -31,7 +31,7 @@
 - [PHP09｜登录认证与权限控制](./PHP09-Auth/)
 - [PHP10｜REST API 工程实战](./PHP10-REST-API/)
 - [PHP11｜Composer 工程化与可复用组件](./PHP11-Composer/)
-- [PHP12｜轻量 CMS 内容管理系统](./PHP12-CMS/)
+- [PHP12｜轻量 CMS 内容管理系统](./PHP12-CMS/)（文章搜索、分页与后台管理）
 
 ## 运行环境
 
