@@ -50,7 +50,7 @@ try { $repo->save(null, '标题', '', 'draft'); check(false, 'empty body rejecte
 $repo->delete($id);
 check($repo->find($id) === null, 'article can be deleted');
 
-$legacyPdo = new \\PDO('sqlite::memory:');
+$legacyPdo = new \PDO('sqlite::memory:');
 $legacyPdo->exec("CREATE TABLE articles (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'draft', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
 $legacyPdo->exec("INSERT INTO articles(title, body, status, created_at, updated_at) VALUES('旧文章', '迁移前正文', 'published', '2026-01-01', '2026-01-01')");
 $legacyRepo = new ArticleRepository($legacyPdo);
