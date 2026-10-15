@@ -7,6 +7,9 @@
 /PHPBasic/PHP06/learning.sqlite
 /PHPBasic/PHP06/learning.sqlite-shm
 /PHPBasic/PHP06/learning.sqlite-wal
+/PHPBasic/PHP06/book_manager/books.sqlite
+/PHPBasic/PHP06/book_manager/books.sqlite-shm
+/PHPBasic/PHP06/book_manager/books.sqlite-wal
 
 # Common local environment files
 .env
