@@ -137,14 +137,21 @@ if (preg_match('#^/article/(\d+)$#', $path, $matches) === 1) {
 }
 if ($path === '/') {
     $pageNo = max(1, (int) ($_GET['page'] ?? 1));
-    $rows = $articles->published(10, ($pageNo - 1) * 10);
+    $query = trim((string) ($_GET['q'] ?? ''));
+    $query = mb_substr($query, 0, 100);
+    $total = $articles->publishedCount($query);
+    $pages = max(1, (int) ceil($total / 10));
+    $pageNo = min($pageNo, $pages);
+    $rows = $articles->searchPublished($query, 10, ($pageNo - 1) * 10);
     $items = '';
     foreach ($rows as $row) {
         $preview = mb_strlen((string) $row['body']) > 240 ? mb_substr((string) $row['body'], 0, 240) . '…' : (string) $row['body'];
         $items .= '<article><h2><a href="/article/' . (int) $row['id'] . '">' . e((string) $row['title']) . '</a></h2><p class="muted">' . e((string) $row['updated_at']) . '</p><div class="bodytext">' . e($preview) . '</div><p><a href="/article/' . (int) $row['id'] . '">阅读全文 →</a></p></article>';
     }
-    $pagination = '<div class="actions">' . ($pageNo > 1 ? '<a href="/?page=' . ($pageNo - 1) . '">← 上一页</a>' : '') . ($rows !== [] && count($rows) === 10 ? '<a href="/?page=' . ($pageNo + 1) . '">下一页 →</a>' : '') . '</div>';
-    page('文章首页', '<h1>文章与想法</h1><p class="muted">一个使用 PHP、PDO 与 SQLite 构建的轻量内容站点。</p>' . ($items !== '' ? $items . $pagination : '<section class="panel empty">暂时没有已发布文章。</section>'));
+    $searchForm = '<section class="panel"><form method="get" action="/"><label for="q">搜索已发布文章</label><input id="q" name="q" type="text" maxlength="100" value="' . e($query) . '" placeholder="输入标题或正文关键词"><div class="actions"><button type="submit">搜索</button>' . ($query !== '' ? '<a href="/">清除搜索</a>' : '') . '</div></form><p class="muted">共找到 ' . $total . ' 篇文章</p></section>';
+    $queryParam = $query !== '' ? '&amp;q=' . rawurlencode($query) : '';
+    $pagination = '<div class="actions">' . ($pageNo > 1 ? '<a href="/?page=' . ($pageNo - 1) . $queryParam . '">← 上一页</a>' : '') . '<span class="muted">第 ' . $pageNo . ' / ' . $pages . ' 页</span>' . ($pageNo < $pages ? '<a href="/?page=' . ($pageNo + 1) . $queryParam . '">下一页 →</a>' : '') . '</div>';
+    page('文章首页', '<h1>文章与想法</h1><p class="muted">一个使用 PHP、PDO 与 SQLite 构建的轻量内容站点。</p>' . $searchForm . ($items !== '' ? $items . $pagination : '<section class="panel empty">没有匹配的已发布文章。</section>'));
 }
 http_response_code(404);
 page('页面不存在', '<section class="panel"><h1>404｜页面不存在</h1><a href="/">返回首页</a></section>');
