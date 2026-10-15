@@ -35,6 +35,9 @@ jobs:
         run: |
           find PHPBasic -type f -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: Test PDO book manager repository
+        run: php PHPBasic/PHP06/book_manager/tests.php
+
       - name: Install OOP project dependencies
         working-directory: PHPBasic/PHP07
         run: composer install --no-interaction --prefer-dist
