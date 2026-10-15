@@ -38,6 +38,9 @@ jobs:
       - name: Test PDO book manager repository
         run: php PHPBasic/PHP06/book_manager/tests.php
 
+      - name: Test MVC repository
+        run: php PHPBasic/PHP08-MVC/tests.php
+
       - name: Install OOP project dependencies
         working-directory: PHPBasic/PHP07
         run: composer install --no-interaction --prefer-dist
