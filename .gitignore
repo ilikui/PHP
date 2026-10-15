@@ -1,6 +1,8 @@
 # Composer dependencies and PHPUnit cache
 /PHPBasic/PHP07/vendor/
 /PHPBasic/PHP07/.phpunit.cache/
+/PHPBasic/PHP11-Composer/vendor/
+/PHPBasic/PHP11-Composer/.phpunit.cache/
 
 # Generated learning data; do not commit local runtime data
 /PHPBasic/PHP05/data.txt
