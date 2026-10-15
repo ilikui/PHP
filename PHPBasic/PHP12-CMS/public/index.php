@@ -87,7 +87,7 @@ if ($method === 'POST') {
         $id = $rawId === '' ? null : filter_var($rawId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if ($id === false) page('输入无效', '<section class="panel"><h1>文章 ID 无效</h1><a href="/admin">返回后台</a></section>');
         try {
-            $savedId = $articles->save($id, (string) ($_POST['title'] ?? ''), (string) ($_POST['body'] ?? ''), (string) ($_POST['status'] ?? 'draft'));
+            $savedId = $articles->save($id, (string) ($_POST['title'] ?? ''), (string) ($_POST['body'] ?? ''), (string) ($_POST['status'] ?? 'draft'), (string) ($_POST['category'] ?? ''), (string) ($_POST['tags'] ?? ''));
             go('/admin/edit?id=' . $savedId . '&saved=1');
         } catch (InvalidArgumentException|OutOfBoundsException $exception) {
             page('保存失败', '<section class="panel"><h1>保存失败</h1><p>' . e($exception->getMessage()) . '</p><a href="/admin/new">返回编辑</a></section>');
@@ -112,12 +112,13 @@ if ($path === '/admin') {
     $query = mb_substr(trim((string) ($_GET['q'] ?? '')), 0, 100);
     $status = (string) ($_GET['status'] ?? '');
     if (!in_array($status, ['', 'draft', 'published'], true)) $status = '';
-    $rows = $articles->all($query, $status);
+    $category = mb_substr(trim((string) ($_GET['category'] ?? '')), 0, 40);
+    $rows = $articles->all($query, $status, $category);
     $items = '';
     foreach ($rows as $row) {
-        $items .= '<article><h2><a href="/admin/edit?id=' . (int) $row['id'] . '">' . e((string) $row['title']) . '</a></h2><p><span class="status">' . ($row['status'] === 'published' ? '已发布' : '草稿') . '</span> <small>更新于 ' . e((string) $row['updated_at']) . '</small></p><div class="actions"><a class="button" href="/admin/edit?id=' . (int) $row['id'] . '">编辑</a><form class="inline" method="post" action="/admin/delete" onsubmit="return confirm(\'确定删除这篇文章吗？\')"><input type="hidden" name="_csrf" value="' . e(csrf()) . '"><input type="hidden" name="id" value="' . (int) $row['id'] . '"><button class="danger" type="submit">删除</button></form></div></article>';
+        $items .= '<article><h2><a href="/admin/edit?id=' . (int) $row['id'] . '">' . e((string) $row['title']) . '</a></h2><p><span class="status">' . ($row['status'] === 'published' ? '已发布' : '草稿') . '</span> ' . (!empty($row['category']) ? '<span class="status">分类：' . e((string) $row['category']) . '</span> ' : '') . '<small>更新于 ' . e((string) $row['updated_at']) . '</small></p><p class="muted">' . (!empty($row['tags']) ? '标签：' . e((string) $row['tags']) : '暂无标签') . '</p><div class="actions"><a class="button" href="/admin/edit?id=' . (int) $row['id'] . '">编辑</a><form class="inline" method="post" action="/admin/delete" onsubmit="return confirm(\'确定删除这篇文章吗？\')"><input type="hidden" name="_csrf" value="' . e(csrf()) . '"><input type="hidden" name="id" value="' . (int) $row['id'] . '"><button class="danger" type="submit">删除</button></form></div></article>';
     }
-    $filter = '<section class="panel"><form method="get" action="/admin"><label for="q">搜索文章</label><input id="q" name="q" type="text" maxlength="100" value="' . e($query) . '" placeholder="标题或正文关键词"><label for="status">发布状态</label><select id="status" name="status"><option value=""' . ($status === '' ? ' selected' : '') . '>全部状态</option><option value="draft"' . ($status === 'draft' ? ' selected' : '') . '>草稿</option><option value="published"' . ($status === 'published' ? ' selected' : '') . '>已发布</option></select><div class="actions"><button type="submit">筛选</button><a href="/admin">重置</a></div></form><p class="muted">当前找到 ' . count($rows) . ' 篇文章</p></section>';
+    $filter = '<section class="panel"><form method="get" action="/admin"><label for="q">搜索文章</label><input id="q" name="q" type="text" maxlength="100" value="' . e($query) . '" placeholder="标题或正文关键词"><label for="status">发布状态</label><select id="status" name="status"><option value=""' . ($status === '' ? ' selected' : '') . '>全部状态</option><option value="draft"' . ($status === 'draft' ? ' selected' : '') . '>草稿</option><option value="published"' . ($status === 'published' ? ' selected' : '') . '>已发布</option></select><label for="category">分类</label><input id="category" name="category" type="text" maxlength="40" value="' . e($category) . '" placeholder="精确匹配分类"><div class="actions"><button type="submit">筛选</button><a href="/admin">重置</a></div></form><p class="muted">当前找到 ' . count($rows) . ' 篇文章</p></section>';
     page('文章管理', '<h1>文章管理</h1><p class="muted">已登录：' . e((string) ($_SESSION['username'] ?? 'admin')) . '</p><p><a class="button" href="/admin/new">＋ 新建文章</a></p>' . $filter . ($items !== '' ? $items : '<section class="panel empty">没有匹配文章。</section>'));
 }
 
@@ -131,32 +132,37 @@ if ($path === '/admin/new' || $path === '/admin/edit') {
     $title = (string) ($row['title'] ?? '');
     $body = (string) ($row['body'] ?? '');
     $status = (string) ($row['status'] ?? 'draft');
+    $category = (string) ($row['category'] ?? '');
+    $tags = (string) ($row['tags'] ?? '');
     $saved = isset($_GET['saved']) ? '<p class="status">保存成功</p>' : '';
-    page($row ? '编辑文章' : '新建文章', '<section class="panel"><h1>' . ($row ? '编辑文章' : '新建文章') . '</h1>' . $saved . '<form method="post" action="/admin/save"><input type="hidden" name="_csrf" value="' . e(csrf()) . '"><input type="hidden" name="id" value="' . ($row ? (int) $row['id'] : '') . '"><label for="title">标题（最多 160 字符）</label><input id="title" name="title" type="text" maxlength="160" required value="' . e($title) . '"><label for="body">正文（纯文本，最多 50000 字符）</label><textarea id="body" name="body" maxlength="50000" required>' . e($body) . '</textarea><label for="status">发布状态</label><select id="status" name="status"><option value="draft"' . ($status === 'draft' ? ' selected' : '') . '>草稿</option><option value="published"' . ($status === 'published' ? ' selected' : '') . '>已发布</option></select><div class="actions"><button type="submit">保存文章</button><a href="/admin">取消</a></div></form></section>');
+    page($row ? '编辑文章' : '新建文章', '<section class="panel"><h1>' . ($row ? '编辑文章' : '新建文章') . '</h1>' . $saved . '<form method="post" action="/admin/save"><input type="hidden" name="_csrf" value="' . e(csrf()) . '"><input type="hidden" name="id" value="' . ($row ? (int) $row['id'] : '') . '"><label for="title">标题（最多 160 字符）</label><input id="title" name="title" type="text" maxlength="160" required value="' . e($title) . '"><label for="category">分类（可选，最多 40 字符）</label><input id="category" name="category" type="text" maxlength="40" value="' . e($category) . '" placeholder="例如：PHP、架构设计"><label for="tags">标签（可选，逗号分隔，最多 10 个，每个最多 30 字符）</label><input id="tags" name="tags" type="text" maxlength="400" value="' . e($tags) . '" placeholder="例如：PDO, SQLite, 安全"><label for="body">正文（纯文本，最多 50000 字符）</label><textarea id="body" name="body" maxlength="50000" required>' . e($body) . '</textarea><label for="status">发布状态</label><select id="status" name="status"><option value="draft"' . ($status === 'draft' ? ' selected' : '') . '>草稿</option><option value="published"' . ($status === 'published' ? ' selected' : '') . '>已发布</option></select><div class="actions"><button type="submit">保存文章</button><a href="/admin">取消</a></div></form></section>');
 }
 
 if (preg_match('#^/article/(\d+)$#', $path, $matches) === 1) {
     $row = $articles->find((int) $matches[1]);
     if ($row === null || ($row['status'] !== 'published' && !isAdmin())) { http_response_code(404); page('文章不存在', '<section class="panel"><h1>文章不存在</h1><a href="/">返回首页</a></section>'); }
-    page((string) $row['title'], '<article><h1>' . e((string) $row['title']) . '</h1><p class="muted">更新于 ' . e((string) $row['updated_at']) . '</p><div class="bodytext">' . e((string) $row['body']) . '</div></article><a href="/">← 所有文章</a>');
+    page((string) $row['title'], '<article><h1>' . e((string) $row['title']) . '</h1><p class="muted">' . (!empty($row['category']) ? '分类：<a href="/?category=' . rawurlencode((string) $row['category']) . '">' . e((string) $row['category']) . '</a> · ' : '') . '更新于 ' . e((string) $row['updated_at']) . '</p>' . (!empty($row['tags']) ? '<p>标签：' . implode(' ', array_map(static fn(string $tag): string => '<a class="status" href="/?q=' . rawurlencode($tag) . '">' . e($tag) . '</a>', array_filter(array_map('trim', explode(',', (string) $row['tags'])))) . '</p>' : '') . '<div class="bodytext">' . e((string) $row['body']) . '</div></article><a href="/">← 所有文章</a>');
 }
 if ($path === '/') {
     $pageNo = max(1, (int) ($_GET['page'] ?? 1));
     $query = trim((string) ($_GET['q'] ?? ''));
     $query = mb_substr($query, 0, 100);
-    $total = $articles->publishedCount($query);
+    $category = mb_substr(trim((string) ($_GET['category'] ?? '')), 0, 40);
+    $categories = $articles->categories();
+    $total = $articles->publishedCount($query, $category);
     $pages = max(1, (int) ceil($total / 10));
     $pageNo = min($pageNo, $pages);
-    $rows = $articles->searchPublished($query, 10, ($pageNo - 1) * 10);
+    $rows = $articles->searchPublished($query, 10, ($pageNo - 1) * 10, $category);
     $items = '';
     foreach ($rows as $row) {
         $preview = mb_strlen((string) $row['body']) > 240 ? mb_substr((string) $row['body'], 0, 240) . '…' : (string) $row['body'];
-        $items .= '<article><h2><a href="/article/' . (int) $row['id'] . '">' . e((string) $row['title']) . '</a></h2><p class="muted">' . e((string) $row['updated_at']) . '</p><div class="bodytext">' . e($preview) . '</div><p><a href="/article/' . (int) $row['id'] . '">阅读全文 →</a></p></article>';
+        $items .= '<article><h2><a href="/article/' . (int) $row['id'] . '">' . e((string) $row['title']) . '</a></h2><p class="muted">' . (!empty($row['category']) ? '<a class="status" href="/?category=' . rawurlencode((string) $row['category']) . '">' . e((string) $row['category']) . '</a> · ' : '') . e((string) $row['updated_at']) . '</p>' . (!empty($row['tags']) ? '<p>' . implode(' ', array_map(static fn(string $tag): string => '<a class="status" href="/?q=' . rawurlencode($tag) . '">' . e($tag) . '</a>', array_filter(array_map('trim', explode(',', (string) $row['tags'])))) . '</p>' : '') . '<div class="bodytext">' . e($preview) . '</div><p><a href="/article/' . (int) $row['id'] . '">阅读全文 →</a></p></article>';
     }
     $searchForm = '<section class="panel"><form method="get" action="/"><label for="q">搜索已发布文章</label><input id="q" name="q" type="text" maxlength="100" value="' . e($query) . '" placeholder="输入标题或正文关键词"><div class="actions"><button type="submit">搜索</button>' . ($query !== '' ? '<a href="/">清除搜索</a>' : '') . '</div></form><p class="muted">共找到 ' . $total . ' 篇文章</p></section>';
-    $queryParam = $query !== '' ? '&amp;q=' . rawurlencode($query) : '';
+    $queryParam = ($query !== '' ? '&amp;q=' . rawurlencode($query) : '') . ($category !== '' ? '&amp;category=' . rawurlencode($category) : '');
+    $categoryNav = '<section class="panel"><strong>分类浏览</strong><div class="actions"><a class="status" href="/">全部分类</a>' . implode('', array_map(static fn(string $item): string => '<a class="status" href="/?category=' . rawurlencode($item) . '">' . e($item) . '</a>', $categories)) . '</div>' . ($category !== '' ? '<p class="muted">当前分类：' . e($category) . ' <a href="/">清除</a></p>' : '') . '</section>';
     $pagination = '<div class="actions">' . ($pageNo > 1 ? '<a href="/?page=' . ($pageNo - 1) . $queryParam . '">← 上一页</a>' : '') . '<span class="muted">第 ' . $pageNo . ' / ' . $pages . ' 页</span>' . ($pageNo < $pages ? '<a href="/?page=' . ($pageNo + 1) . $queryParam . '">下一页 →</a>' : '') . '</div>';
-    page('文章首页', '<h1>文章与想法</h1><p class="muted">一个使用 PHP、PDO 与 SQLite 构建的轻量内容站点。</p>' . $searchForm . ($items !== '' ? $items . $pagination : '<section class="panel empty">没有匹配的已发布文章。</section>'));
+    page('文章首页', '<h1>文章与想法</h1><p class="muted">一个使用 PHP、PDO 与 SQLite 构建的轻量内容站点。</p>' . $categoryNav . $searchForm . ($items !== '' ? $items . $pagination : '<section class="panel empty">没有匹配的已发布文章。</section>'));
 }
 http_response_code(404);
 page('页面不存在', '<section class="panel"><h1>404｜页面不存在</h1><a href="/">返回首页</a></section>');
