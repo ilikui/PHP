@@ -32,6 +32,34 @@ final class ArticleRepository
     }
 
     /** @return list<array<string, mixed>> */
+    public function searchPublished(string $query = '', int $limit = 10, int $offset = 0): array
+    {
+        $query = trim($query);
+        $sql = 'SELECT id, title, body, status, created_at, updated_at FROM articles WHERE status = \'published\'';
+        if ($query !== '') {
+            $sql .= ' AND (instr(lower(title), lower(:query)) > 0 OR instr(lower(body), lower(:query)) > 0)';
+        }
+        $sql .= ' ORDER BY updated_at DESC, id DESC LIMIT :limit OFFSET :offset';
+        $stmt = $this->pdo->prepare($sql);
+        if ($query !== '') $stmt->bindValue(':query', $query, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', max(1, min($limit, 100)), PDO::PARAM_INT);
+        $stmt->bindValue(':offset', max(0, $offset), PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function publishedCount(string $query = ''): int
+    {
+        $query = trim($query);
+        if ($query === '') {
+            return (int) $this->pdo->query("SELECT COUNT(*) FROM articles WHERE status = 'published'")->fetchColumn();
+        }
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM articles WHERE status = 'published' AND (instr(lower(title), lower(:query)) > 0 OR instr(lower(body), lower(:query)) > 0)");
+        $stmt->execute([':query' => $query]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /** @return list<array<string, mixed>> */
     public function all(): array
     {
         return $this->pdo->query('SELECT id, title, body, status, created_at, updated_at FROM articles ORDER BY updated_at DESC, id DESC')->fetchAll();
