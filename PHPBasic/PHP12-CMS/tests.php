@@ -23,6 +23,10 @@ check(count($repo->searchPublished('已发布')) === 1, 'public search matches a
 check(count($repo->searchPublished('不存在')) === 0, 'public search returns no false matches');
 check($repo->publishedCount() === 1, 'published count excludes drafts');
 check($repo->publishedCount('测试') === 1, 'filtered published count matches search');
+check(count($repo->all('测试')) === 1, 'admin search matches title or body');
+check(count($repo->all('', 'published')) === 1, 'admin status filter selects published articles');
+check(count($repo->all('', 'draft')) === 0, 'admin status filter excludes published articles');
+try { $repo->all('', 'unknown'); check(false, 'invalid admin status rejected'); } catch (InvalidArgumentException) { check(true, 'invalid admin status rejected'); }
 check(count($repo->searchPublished('测试', 1, 1)) === 0, 'search supports pagination offsets');
 check($repo->find($id)['body'] === '已发布内容', 'article can be updated');
 try { $repo->save(null, '', 'body', 'draft'); check(false, 'empty title rejected'); } catch (InvalidArgumentException) { check(true, 'empty title rejected'); }
