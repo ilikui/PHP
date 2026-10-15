@@ -26,7 +26,9 @@
 - [PHP05｜文件、JSON、正则与日期时间](./PHP05/)
 - [PHP06｜PDO 数据库实战](./PHP06/)
 - [PHP06 实战｜图书管理 CRUD 应用](./PHP06/book_manager/)
-- [PHP07｜面向对象、Composer 与测试](./PHP07/)\n- [PHP08｜MVC 与 Web 应用架构](./PHP08-MVC/)
+- [PHP07｜面向对象、Composer 与测试](./PHP07/)
+- [PHP08｜MVC 与 Web 应用架构](./PHP08-MVC/)
+- [PHP09｜登录认证与权限控制](./PHP09-Auth/)
 
 ## 运行环境
 
