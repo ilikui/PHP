@@ -13,6 +13,9 @@
 /PHPBasic/PHP08-MVC/var/*.sqlite
 /PHPBasic/PHP08-MVC/var/*.sqlite-shm
 /PHPBasic/PHP08-MVC/var/*.sqlite-wal
+/PHPBasic/PHP09-Auth/var/*.sqlite
+/PHPBasic/PHP09-Auth/var/*.sqlite-shm
+/PHPBasic/PHP09-Auth/var/*.sqlite-wal
 
 # Common local environment files
 .env
