@@ -2,8 +2,20 @@
 declare(strict_types=1);
 
 require __DIR__ . '/src/ArticleRepository.php';
+require __DIR__ . '/src/MarkdownRenderer.php';
 
 use Learning\Cms\ArticleRepository;
+use Learning\Cms\MarkdownRenderer;
+
+
+$markdown = "# 标题\n\n这是 **加粗** 和 *斜体*，还有 " . chr(96) . "code" . chr(96) . "。\n\n- 项目一\n- 项目二\n\n" . str_repeat(chr(96), 3) . "php\n<?php echo 1;\n" . str_repeat(chr(96), 3);
+$rendered = MarkdownRenderer::render($markdown);
+check(str_contains($rendered, '<h1>标题</h1>'), 'Markdown renders headings');
+check(str_contains($rendered, '<strong>加粗</strong>') && str_contains($rendered, '<em>斜体</em>'), 'Markdown renders emphasis');
+check(str_contains($rendered, '<ul>') && str_contains($rendered, '<li>项目一</li>'), 'Markdown renders unordered lists');
+check(str_contains($rendered, '<pre><code>') && str_contains($rendered, '&lt;?php echo 1;'), 'Markdown renders escaped code blocks');
+$unsafe = MarkdownRenderer::render('<script>alert(1)</script> [bad](javascript:alert(1))');
+check(!str_contains($unsafe, '<script>') && !str_contains($unsafe, 'href="javascript:'), 'Markdown escapes raw HTML and rejects unsafe link protocols');
 
 function check(bool $condition, string $message): void
 {
